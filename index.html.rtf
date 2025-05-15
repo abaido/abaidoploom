@@ -1,0 +1,192 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2758
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="it">\
+<head>\
+  <meta charset="UTF-8" />\
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>\
+  <title>Ploom Vendite Tracker</title>\
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">\
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>\
+  <style>\
+    * \{\
+      box-sizing: border-box;\
+      font-family: 'Roboto', sans-serif;\
+    \}\
+    body \{\
+      margin: 0; padding: 0;\
+      background: #f0f2f5;\
+      color: #333;\
+    \}\
+    header \{\
+      background-color: #1a73e8;\
+      color: white;\
+      padding: 30px 20px;\
+      text-align: center;\
+    \}\
+    main \{\
+      max-width: 800px;\
+      margin: auto;\
+      padding: 30px 20px;\
+      background: white;\
+      margin-top: -20px;\
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);\
+      border-radius: 10px;\
+    \}\
+    h2 \{\
+      color: #1a73e8;\
+    \}\
+    form, .filters \{\
+      display: flex;\
+      flex-direction: column;\
+      gap: 10px;\
+      margin-bottom: 20px;\
+    \}\
+    input, button \{\
+      padding: 12px;\
+      font-size: 16px;\
+      border-radius: 6px;\
+      border: 1px solid #ccc;\
+    \}\
+    button \{\
+      background-color: #1a73e8;\
+      color: white;\
+      cursor: pointer;\
+      border: none;\
+      transition: background 0.3s ease;\
+    \}\
+    button:hover \{\
+      background-color: #0c59c5;\
+    \}\
+    table \{\
+      width: 100%;\
+      border-collapse: collapse;\
+      margin-top: 10px;\
+    \}\
+    th, td \{\
+      border: 1px solid #e0e0e0;\
+      padding: 12px;\
+      text-align: left;\
+    \}\
+    th \{\
+      background-color: #f9f9f9;\
+    \}\
+    .export \{\
+      margin-top: 20px;\
+      text-align: right;\
+    \}\
+    .export button \{\
+      background-color: green;\
+    \}\
+  </style>\
+</head>\
+<body>\
+  <header>\
+    <h1>Ploom Vendite Tracker</h1>\
+    <p>Gestione moderna di contatti e vendite</p>\
+  </header>\
+  <main>\
+    <section>\
+      <h2>Contatto Cliente</h2>\
+      <form id="contactForm">\
+        <input type="text" placeholder="Nome Cliente" required />\
+        <input type="email" placeholder="Email" required />\
+        <input type="text" placeholder="Prodotto Ploom" required />\
+        <button type="submit">Salva Contatto</button>\
+      </form>\
+    </section>\
+\
+    <section>\
+      <h2>Registro Vendite</h2>\
+      <form id="salesForm">\
+        <input type="text" placeholder="Nome Cliente" required />\
+        <input type="date" required />\
+        <input type="text" placeholder="Prodotto Venduto" required />\
+        <button type="submit">Registra Vendita</button>\
+      </form>\
+\
+      <div class="filters">\
+        <label for="filterDate">Filtra per data:</label>\
+        <input type="date" id="filterDate" />\
+        <button onclick="filterSales()">Applica Filtro</button>\
+        <button onclick="loadSales()">Rimuovi Filtro</button>\
+      </div>\
+\
+      <table id="salesTable">\
+        <thead>\
+          <tr><th>Cliente</th><th>Data</th><th>Prodotto</th></tr>\
+        </thead>\
+        <tbody></tbody>\
+      </table>\
+\
+      <div class="export">\
+        <button onclick="exportToExcel()">Esporta in Excel</button>\
+      </div>\
+    </section>\
+\
+    <section>\
+      <h2>Info su Ploom</h2>\
+      <p>Ploom \'e8 un'alternativa moderna ai prodotti da fumo. Offre tecnologia innovativa per un'esperienza soddisfacente e discreta.</p>\
+    </section>\
+  </main>\
+\
+  <script>\
+    const salesKey = "venditePloom";\
+\
+    function saveToLocalStorage(sales) \{\
+      localStorage.setItem(salesKey, JSON.stringify(sales));\
+    \}\
+\
+    function getFromLocalStorage() \{\
+      return JSON.parse(localStorage.getItem(salesKey)) || [];\
+    \}\
+\
+    function renderSales(sales) \{\
+      const tbody = document.querySelector('#salesTable tbody');\
+      tbody.innerHTML = '';\
+      sales.forEach(sale => \{\
+        const row = document.createElement('tr');\
+        row.innerHTML = `<td>$\{sale.nome\}</td><td>$\{sale.data\}</td><td>$\{sale.prodotto\}</td>`;\
+        tbody.appendChild(row);\
+      \});\
+    \}\
+\
+    function loadSales() \{\
+      const sales = getFromLocalStorage();\
+      renderSales(sales);\
+    \}\
+\
+    function filterSales() \{\
+      const selectedDate = document.getElementById('filterDate').value;\
+      const sales = getFromLocalStorage();\
+      const filtered = sales.filter(s => s.data === selectedDate);\
+      renderSales(filtered);\
+    \}\
+\
+    document.getElementById('salesForm').onsubmit = function(e) \{\
+      e.preventDefault();\
+      const nome = e.target[0].value;\
+      const data = e.target[1].value;\
+      const prodotto = e.target[2].value;\
+      const sales = getFromLocalStorage();\
+      sales.push(\{ nome, data, prodotto \});\
+      saveToLocalStorage(sales);\
+      loadSales();\
+      e.target.reset();\
+    \};\
+\
+    function exportToExcel() \{\
+      const table = document.getElementById("salesTable");\
+      const wb = XLSX.utils.table_to_book(table, \{sheet: "Vendite"\});\
+      XLSX.writeFile(wb, "registro_vendite.xlsx");\
+    \}\
+\
+    window.onload = loadSales;\
+  </script>\
+</body>\
+</html>}
